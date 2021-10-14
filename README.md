@@ -1,1 +1,1 @@
-# DuckieProject - adja
+# DuckieProject - adja🥴
