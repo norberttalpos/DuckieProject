@@ -154,7 +154,7 @@ class DataGenerator:
             cropped = obs_distorted_DS[37:150, 0:200]
 
                 # NOTICE: OpenCV changes the order of the channels !!!
-            output_img = cv2.cvtColor(cropped, cv2.COLOR_BGR2YUV)
+            output_img = cv2.cvtColor(cropped, cv2.COLOR_RGBA2BGR)
                 # print(f"Recorded shape: {obs.shape}")
                 # print(f"Saved image shape: {cropped.shape}")
 
