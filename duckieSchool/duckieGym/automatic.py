@@ -19,11 +19,11 @@ from log_schema import Episode, Step
 from typing import List
 from gym_duckietown.envs import DuckietownEnv
 
-
 REWARD_INVALID_POSE = -1000
 
+
 class DataGenerator:
-    def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=True):
+    def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False):
         if not log_file:
             log_file = f"dataset.log"
         self.env = env
@@ -31,9 +31,9 @@ class DataGenerator:
         self.logger = Logger(self.env, log_file=log_file)
         self.episode = 1
         self.max_episodes = max_episodes
-        self.downscale = True
+        self.downscale = downscale
 
-        #! Enter main event loop
+        # ! Enter main event loop
         print("Starting data generation")
 
         pyglet.clock.schedule_interval(
@@ -76,15 +76,6 @@ class DataGenerator:
 
         # return the resized image
         return resized
-
-    #def store_velosteer(self, step, info):
-        #n = str(datetime.datetime.now())+".txt"
-        #n= "/tmp/myapp/adja.txt"
-        #out = str(step) + " " + str(info)
-        #f=open(n,"w")
-        #f.write(out)
-        #f.close()
-
 
     def pure_pursuite(self, env) -> List[float]:
         """
@@ -145,8 +136,9 @@ class DataGenerator:
         """
 
         action = self.pure_pursuite(env)
+        # action = self.expert_policy.predict("not used param TODO")
 
-        #! GO! and get next
+        # ! GO! and get next
         # * Observation is 640x480 pixels
         obs, reward, done, info = env.step(action)
 
@@ -154,24 +146,22 @@ class DataGenerator:
             print("Out of bound")
         else:
             output_img = obs
-            #if True:
+            if self.downscale:
                 # Resize to (150x200)
-                #! resize to Nvidia standard:
-            obs_distorted_DS = self.image_resize(obs, width=200)
+                # ! resize to Nvidia standard:
+                obs_distorted_DS = self.image_resize(obs, width=200)
 
-                #! ADD IMAGE-PREPROCESSING HERE!!!!!
-            height, width = obs_distorted_DS.shape[:2]
+                # ! ADD IMAGE-PREPROCESSING HERE!!!!!
+                height, width = obs_distorted_DS.shape[:2]
                 # print('Distorted return image Height: ', height,' Width: ',width)
-            cropped = obs_distorted_DS[37:150, 0:200]
+                cropped = obs_distorted_DS[0:150, 0:200]
 
                 # NOTICE: OpenCV changes the order of the channels !!!
-            output_img = cv2.cvtColor(cropped, cv2.COLOR_RGBA2BGR)
+                output_img = cv2.cvtColor(cropped, cv2.COLOR_BGR2YUV)
                 # print(f"Recorded shape: {obs.shape}")
                 # print(f"Saved image shape: {cropped.shape}")
 
             step = Step(output_img, reward, action, done)
-            
-            #self.store_velosteer(step,info)
             self.logger.log(step, info)
             # rawlog.log(obs, action, reward, done, info)
             # last_reward = reward
@@ -189,7 +179,7 @@ class DataGenerator:
 
 
 if __name__ == "__main__":
-    #! Parser sector:
+    # ! Parser sector:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env-name", default=None)
     parser.add_argument("--map-name", default="zigzag_dists")
@@ -216,7 +206,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    #! Start Env
+    # ! Start Env
     if args.env_name is None:
         env = DuckietownEnv(
             map_name=args.map_name,
@@ -231,4 +221,5 @@ if __name__ == "__main__":
     else:
         env = gym.make(env=args.env_name)
 
-    node = DataGenerator(env, max_episodes=args.nb_episodes, max_steps=args.steps, log_file=args.logfile, downscale = args.downscale)
+    node = DataGenerator(env, max_episodes=args.nb_episodes, max_steps=args.steps, log_file=args.logfile,
+                         downscale=args.downscale)

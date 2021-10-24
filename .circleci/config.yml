@@ -1,0 +1,46 @@
+version: 2.1
+workflows:
+  version: 2
+  test:
+    jobs:
+      - submit:
+          context: pip-staging
+
+jobs:
+  submit:
+    docker:
+      - image: registry-stage.duckietown.org/duckietown/aido-submission-ci-test:daffy
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      
+      - run:
+          name: Setup daffy commands
+          # language=bash
+          command: |
+            dts --set-version daffy
+            dts update
+            pip3 install -U  "duckietown-docker-utils-daffy>=6.0.55"
+      
+      - run:
+          name: Setup token
+          # language=bash
+          command: |
+            dts challenges config --docker-username $DOCKER_HUB_USERNAME --docker-password $DOCKER_HUB_PASSWORD
+            dts tok verify ${token_dt1_bea}
+            dts tok set ${token_dt1_bea}
+      
+      - run:
+          name: "Challenges info"
+          # language=bash
+          command: |
+            dts challenges info
+
+      - run:
+          name: Submit
+          # language=bash
+          command: |
+            # this does not matter on the staging server
+            cd duckieChallenger
+            make submit-bea
