@@ -9,7 +9,7 @@ def convert_images():
     folder_path = os.path.join(os.getcwd(), "myapp")
     for filename in os.listdir(folder_path):
         convert_image(os.path.join(folder_path, filename))
-        print("hallo")
+
 
 
 def convert_image(image_path):

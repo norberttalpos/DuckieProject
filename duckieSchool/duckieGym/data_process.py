@@ -35,20 +35,18 @@ def process():
 
     X = np.asarray(X)
     y = np.asarray(y)
-    shuffled_indicies = np.random.permutation(len(X))
-    print(shuffled_indicies)
+    shuffled_indices = np.random.permutation(len(X))
     # TRAIN-VAL-TEST
-    train_end = int(len(shuffled_indicies) * train_ratio)
-    val_end = int(len(shuffled_indicies) * (train_ratio + val_ratio))
-    print(train_end,val_end)
-    X_train = X[shuffled_indicies[:train_end]]
-    y_train = y[shuffled_indicies[:train_end]]
-    X_val = X[shuffled_indicies[train_end: val_end]]
-    y_val = y[shuffled_indicies[train_end: val_end]]
-    X_test = X[shuffled_indicies[val_end:]]
-    y_test = y[shuffled_indicies[val_end:]]
+    train_end = int(len(shuffled_indices) * train_ratio)
+    val_end = int(len(shuffled_indices) * (train_ratio + val_ratio))
+    X_train = X[shuffled_indices[:train_end]]
+    y_train = y[shuffled_indices[:train_end]]
+    X_val = X[shuffled_indices[train_end: val_end]]
+    y_val = y[shuffled_indices[train_end: val_end]]
+    X_test = X[shuffled_indices[val_end:]]
+    y_test = y[shuffled_indices[val_end:]]
 
-
+    print("indices")
     print("test",X_test)
     print("train",X_train)
     print("val",X_val)
@@ -56,12 +54,5 @@ def process():
     return ((X_train, y_train), (X_val, y_val), (X_test, y_test))
 
 
-"""
-
-val_ratio = 0.3
-train_ratio = 0.5
-test_ratio = 0.2
-"""
-
 if __name__ == "__main__":
-    todo = process()
+    (X_train, y_train), (X_val, y_val), (X_test, y_test) = process()
