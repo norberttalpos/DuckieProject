@@ -14,9 +14,9 @@ Open in colab buttons for scripts:
 // TODO
 // update the scripts
 
-  automatic.py: [<img src="https://colab.research.google.com/assets/colab-badge.svg" width="25"/>](https://colab.research.google.com/drive/17ZmFWd9ipcPhu3UMql5EZ32AyhlOysG2)
+  automatic.py: [<img src="https://colab.research.google.com/assets/colab-badge.svg" width="100"/>](https://colab.research.google.com/drive/17ZmFWd9ipcPhu3UMql5EZ32AyhlOysG2)
 
-  detector.py : [<img src="https://colab.research.google.com/assets/colab-badge.svg" width="25"/>](https://colab.research.google.com/drive/1xQSpIAknsp-DMxFXMpcI60WFaWCoqjEi)
+  detector.py : [<img src="https://colab.research.google.com/assets/colab-badge.svg" width="100"/>](https://colab.research.google.com/drive/1xQSpIAknsp-DMxFXMpcI60WFaWCoqjEi)
 
 2. Training data:
 // TODO
