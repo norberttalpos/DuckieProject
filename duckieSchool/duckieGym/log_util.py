@@ -46,5 +46,6 @@ class Logger:
         # self.recording.clear()
 
     def close(self):
+
         self._multithreaded_recording.shutdown()
         self._log_file.close()
