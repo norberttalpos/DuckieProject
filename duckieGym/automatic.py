@@ -198,7 +198,7 @@ if __name__ == "__main__":
         "--raw-log", default=False, help="enables recording high resolution raw log"
     )
     parser.add_argument(
-        "--steps", default=20, help="number of steps to record in one batch", type=int
+        "--steps", default=1000, help="number of steps to record in one batch", type=int
     )
     parser.add_argument("--nb-episodes", default=1, type=int)
     parser.add_argument("--logfile", type=str, default=None)
