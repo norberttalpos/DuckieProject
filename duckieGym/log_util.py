@@ -58,7 +58,7 @@ class Logger:
 
                 img_array.save(img_path)
 
-        convert_images()
+        #convert_images()
 
     def _commit(self, episode):
         # we use pickle to store our data
