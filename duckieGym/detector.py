@@ -5,22 +5,22 @@ import numpy as np
 from PIL import Image
 
 
+# processes all images
 def convert_images():
     folder_path = os.path.join(os.getcwd(), "myapp")
     c = 1
     for filename in os.listdir(folder_path):
         convert_image(os.path.join(folder_path, filename))
-        if c%500 == 0:
-            print("first" ,c," images done")
-        c+=1
+        if c % 500 == 0:
+            print("first", c, " images done")
+        c += 1
 
 
 def convert_image(image_path):
-
     img = cv.imread(image_path)
 
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    
+
     lower_yellow = np.array([0, 49, 90], dtype="uint8")
     upper_yellow = np.array([100, 255, 255], dtype="uint8")
 
@@ -44,5 +44,6 @@ def convert_image(image_path):
     w, h = img.size
     crop_height = 120
     img.crop((0, crop_height, w, h)).save(image_path)
+
 
 convert_images()
