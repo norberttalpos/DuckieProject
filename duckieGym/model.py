@@ -9,18 +9,25 @@ from os import listdir
 
 import numpy as np
 
+from duckieGym.LoggerCallback import LoggerCallback
+
 
 def scheduler(epoch):
-    if epoch < 5:
-        return 0.001
-    if epoch < 10:
-        return 0.0005
-    if epoch < 20:
-        return 0.0002
-    if epoch < 40:
-        return 0.0001
+
+    if epoch < 15:
+        return 1.0
+    if epoch < 30:
+        return 0.1
     else:
-        return 0.00005
+        return 0.05
+    if epoch < 20:
+        return 0.1
+    if epoch < 40:
+        return 0.020013423
+    if epoch < 75:
+        return 0.0032421343
+    else:
+        return 0.0004
 
 
 def read_image(filename):
@@ -36,7 +43,7 @@ def read_image(filename):
 def read_data(images_dir_name= "preprocessedImages", label_file="my_app.txt"):
     img_list = np.zeros((len(listdir(images_dir_name)), 48, 85, 3))
     for i, f in enumerate(listdir(images_dir_name)):
-        img_list[i] = (read_image(images_dir_name + f))
+        img_list[i] = (read_image(images_dir_name+ "/" + f))
 
     X = np.asarray(img_list, dtype='float32')
 
@@ -72,12 +79,12 @@ def create_model(input_shape):
     model.add(LeakyReLU())
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-    model.add(Conv2D(filters=32, kernel_size=(5, 5)))  # TODO kernel size
+    model.add(Conv2D(filters=32, kernel_size=(4, 4)))  # TODO kernel size
     model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-    model.add(Conv2D(filters=64, kernel_size=(5, 5)))
+    model.add(Conv2D(filters=64, kernel_size=(3, 3)))
     model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -105,10 +112,11 @@ def run_model(model,X_train,Y_train,X_valid,Y_valid):
 
     print(model.summary())
 
-    model.fit(X_train, Y_train, batch_size=32, epochs=10000, validation_split=0.15,
-              callbacks=[early_stopping, reduce_lr, checkpoint, change_lr], verbose=1)
+    model.fit(X_train, Y_train, batch_size=32, epochs=10000,validation_data=(X_valid,Y_valid),
+              callbacks=[early_stopping, reduce_lr, checkpoint, change_lr, LoggerCallback("stat.csv")], verbose=1, shuffle=True)
 
 
 X_train,Y_train,X_valid,Y_valid,X_test,Y_test = read_data() 
 model = create_model(X_train[0].shape)
-run_model(model,X_train,Y_train,None,None)
+run_model(model,X_train,Y_train,X_valid,Y_valid)
+model.evaluate(X_test,Y_test,batch_size=32)

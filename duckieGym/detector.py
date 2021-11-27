@@ -6,7 +6,7 @@ from PIL import Image
 
 
 
-def change_colors(cv2img):
+def change_colors(cv2img): #TODO szar
     hsv = cv.cvtColor(cv2img, cv.COLOR_BGR2HSV)
 
     lower_yellow = np.array([0, 49, 90], dtype="uint8")
