@@ -4,18 +4,6 @@ import cv2 as cv
 import numpy as np
 from PIL import Image
 
-"""
-
-# processes all images
-def preprocess_all_images_in_dir(dir_="myapp"):
-    folder_path = os.path.join(os.getcwd(), dir_)
-    c = 1
-    for filename in os.listdir(folder_path):
-        preprocess_image(os.path.join(folder_path, filename))
-        if c % 500 == 0:
-            print("first", c, " images done")
-        c += 1
-"""
 
 
 def change_colors(cv2img):
