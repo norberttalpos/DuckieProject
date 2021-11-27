@@ -4,7 +4,7 @@ import os
 import pickle
 from PIL import Image, ImageTk
 import time
-from detector import convert_images
+from detector import preprocess_image
 import numpy as np
 
 from typing import List, Dict
@@ -42,23 +42,28 @@ class Logger:
         self.episode = Episode(version=SCHEMA_VERSION)
         self.episode_count += 1
 
+
     def save_image_and_labels(self, episode):
 
-        img_dir = "myapp"
+        original_images_dir = "originalImages"
+        preprocessed_images_dir = "preprocessedImages"
         with open("my_app.txt", "a") as file:
             for step in episode.steps:
-                t = str(round(time.time() * 1000))
-                img_path = os.path.join(os.getcwd(), img_dir, t + ".png")
+                t = str(round(time.time() * 1000))  # using it as frame name
+                original_img_path = os.path.join(os.getcwd(), original_images_dir, t + ".png")
+                preprocessed_img_path = os.path.join(os.getcwd(), preprocessed_images_dir, t + ".png")
 
-                img = step.obs
+                img_array = step.obs
                 steer, velocity = step.action
                 file.write(t + " " + str(steer) + " " + str(velocity) + "\n")
 
-                img_array = Image.fromarray(img)
+                og_img = Image.fromarray(img_array)
+                og_img.save(original_img_path)
 
-                img_array.save(img_path)
+                preprocessed_img = preprocess_image(img_array)
+                preprocessed_img.save(preprocessed_img_path)
 
-        #convert_images()
+
 
     def _commit(self, episode):
         # we use pickle to store our data
