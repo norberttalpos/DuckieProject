@@ -36,7 +36,7 @@ def read_image(filename):
 def read_data(images_dir_name= "preprocessedImages", label_file="my_app.txt"):
     img_list = np.zeros((len(listdir(images_dir_name)), 48, 85, 3))
     for i, f in enumerate(listdir(images_dir_name)):
-        img_list[i] = (read_image(images_dir_name + "/" + f))
+        img_list[i] = (read_image(images_dir_name + f))
 
     X = np.asarray(img_list, dtype='float32')
 
@@ -48,7 +48,20 @@ def read_data(images_dir_name= "preprocessedImages", label_file="my_app.txt"):
             y = np.asarray(y, dtype="float32")
             Y[i] = y
 
-    return (X,Y)
+
+    train_split=0.7
+    valid_split=0.15
+    test_split=0.15
+    nb_samples=X.shape[0]
+
+    X_train = X[0:int(nb_samples*(train_split))]
+    Y_train = Y[0:int(nb_samples*(train_split))]
+    X_valid = X[int(nb_samples*(train_split)):int(nb_samples*(1-test_split))]
+    Y_valid = Y[int(nb_samples*(train_split)):int(nb_samples*(1-test_split))]
+    X_test = X[int(nb_samples*(1-test_split)):]
+    Y_test = Y[int(nb_samples*(1-test_split)):]
+
+    return (X_train,Y_train,X_valid,Y_valid,X_test,Y_test)
 
 
 def create_model(input_shape):
@@ -59,12 +72,12 @@ def create_model(input_shape):
     model.add(LeakyReLU())
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-    model.add(Conv2D(filters=32, kernel_size=(3, 3)))  # TODO kernel size
+    model.add(Conv2D(filters=32, kernel_size=(5, 5)))  # TODO kernel size
     model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-    model.add(Conv2D(filters=64, kernel_size=(3, 3)))
+    model.add(Conv2D(filters=64, kernel_size=(5, 5)))
     model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -88,14 +101,14 @@ def run_model(model,X_train,Y_train,X_valid,Y_valid):
 
     model.compile(loss='mse',
                   optimizer=Adam(),
-                  metrics=['mse'],)
+                  metrics=['mse'])
 
     print(model.summary())
 
     model.fit(X_train, Y_train, batch_size=32, epochs=10000, validation_split=0.15,
-              callbacks=[early_stopping, reduce_lr, checkpoint, change_lr], verbose=1, shuffle=True)
+              callbacks=[early_stopping, reduce_lr, checkpoint, change_lr], verbose=1)
 
 
-X,Y = read_data()
-model = create_model(X[0].shape)
-run_model(model,X,Y,None,None)
+X_train,Y_train,X_valid,Y_valid,X_test,Y_test = read_data() 
+model = create_model(X_train[0].shape)
+run_model(model,X_train,Y_train,None,None)
