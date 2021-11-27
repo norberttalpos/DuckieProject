@@ -48,7 +48,20 @@ def read_data(images_dir_name= "preprocessedImages", label_file="my_app.txt"):
             y = np.asarray(y, dtype="float32")
             Y[i] = y
 
-    return (X,Y)
+
+    train_split=0.7
+    valid_split=0.15
+    test_split=0.15
+    nb_samples=X.shape[0]
+
+    X_train = X[0:int(nb_samples*(train_split))]
+    Y_train = Y[0:int(nb_samples*(train_split))]
+    X_valid = X[int(nb_samples*(train_split)):int(nb_samples*(1-test_split))]
+    Y_valid = Y[int(nb_samples*(train_split)):int(nb_samples*(1-test_split))]
+    X_test = X[int(nb_samples*(1-test_split)):]
+    Y_test = Y[int(nb_samples*(1-test_split)):]
+
+    return (X_train,Y_train,X_valid,Y_valid,X_test,Y_test)
 
 
 def create_model(input_shape):
@@ -96,6 +109,6 @@ def run_model(model,X_train,Y_train,X_valid,Y_valid):
               callbacks=[early_stopping, reduce_lr, checkpoint, change_lr], verbose=1)
 
 
-X,Y = read_data() #TODO split data 0.7-0.15-0.15 pl?
-model = create_model(X[0].shape)
-run_model(model,X,Y,None,None)
+X_train,Y_train,X_valid,Y_valid,X_test,Y_test = read_data() 
+model = create_model(X_train[0].shape)
+run_model(model,X_train,Y_train,None,None)
