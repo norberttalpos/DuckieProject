@@ -6,7 +6,7 @@ from PIL import Image
 
 
 
-def change_colors(cv2img): #TODO szar
+def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
     hsv = cv.cvtColor(cv2img, cv.COLOR_BGR2HSV)
 
     lower_yellow = np.array([0, 49, 90], dtype="uint8")
@@ -26,9 +26,7 @@ def change_colors(cv2img): #TODO szar
 
     result = cv.add(cv.add(np.stack((edges,) * 3, axis=-1), res_yellow), res_grey)
 
-    im_rgb = cv.cvtColor(result, cv.COLOR_BGR2RGB)
-
-    return im_rgb
+    return result
 
 
 def preprocess_image(cv2img):
@@ -37,7 +35,7 @@ def preprocess_image(cv2img):
     img = Image.fromarray(im_rgb, 'RGB')
     w, h = img.size  # original images w,h :  640 x 480px
     crop_height = 120  # cropping it to 640x360
-    img.crop((0, crop_height, w, h))
+    img = img.crop((0, crop_height, w, h))
 
     # resizing the image for training to 85x48 (48 height and the according width to keep cropped image size ratio
     img = img.resize((85,48))
