@@ -118,8 +118,11 @@ def train_model(model, X_train, Y_train, X_valid, Y_valid):
               shuffle=True)
 
 
+
+
 X, Y = read_data()
 
+#TODO swap scale and split_data order
 (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, Y)
 
 (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test) = split_data(X_scaled, Y_scaled)
