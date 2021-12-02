@@ -22,8 +22,13 @@ For teaching, we convert the images back to a numpy array format with shape of (
 
   data_process: [<img src="https://colab.research.google.com/assets/colab-badge.svg" width="100"/>](https://colab.research.google.com/drive/1O8lRYQlKN9IQgttoQGnu35wppqE9DZBH)
   
-  adatok : [<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1147px-Google_Drive_icon_%282020%29.svg.png" width="20"/>](https://drive.google.com/drive/folders/124WPRwzaz-ePeScy4qqRwlmeeOi_Ii7w?usp=sharing)
+  Data 1 : [<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1147px-Google_Drive_icon_%282020%29.svg.png" width="20"/>](https://drive.google.com/drive/folders/124WPRwzaz-ePeScy4qqRwlmeeOi_Ii7w?usp=sharing)
+  
+  Data 2 : [<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1147px-Google_Drive_icon_%282020%29.svg.png" width="20"/>](https://drive.google.com/file/d/1-Hm0SgFPcqoTUjNcBEBRo7vR-5io4Rxk/view?usp=sharing)
 
 Milestone 2:
 
 Having collected a certain amount of observations from the duckietown environment, we started creating our model which learns using Imitation learning. Imitation learning is a kind of behaviour cloning method, which requires an expert to show the learner it's behaviour, in our case, given an image from the duckietown environment, what action would the expert do. The images are the inputs of our model, and the actions (velocity, steering) are the desired outputs. First, we fitted the model using the previously collected data, using a convolutional neural network (the implementation can be found in ./duckieGym/model.py), this resulted in a 0.3 mse validation loss model. The main drawback of imitation learning is that the model is only trained on perfect conditions, there are no examples of leaving the road and coming back from the grass, thus this alone is not enough. Hence we decided to extend the training DAgger, which is an algorithm solving our problem by letting the model go around in the environment, and when the model is not performing well, the expert takes the control back, showing the model what it should do in such cases. We collect every observation of this process, then the model will be further trained using them.
+
+Data 1 contain Training Data for Lane Following and Data 2 for Pedestrians.
+These data gathered by ourself. We extracted these from DuckieTown’s own simulation environment, half with manual guidance and half with pre-written automation.
