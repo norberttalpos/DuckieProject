@@ -32,3 +32,11 @@ Having collected a certain amount of observations from the duckietown environmen
 
 Data 1 contain Training Data for Lane Following and Data 2 for Pedestrians.
 These data gathered by ourself. We extracted these from DuckieTown’s own simulation environment, half with manual guidance and half with pre-written automation.
+
+The script automatic.py runs a simulation in the duckieTown environment and saves the images in an original form to an "/originalImages" folder and also does some preprocessing on the images that includes resizing and a little color manipulation. These smaller images are saved to the "/preprocessedImages" folder. The corresponding labels to the images are also saved to a text file called "my_app.txt". Each row contains an integer, and two floats describing the image ID, the velocity and the steering to that particular image.
+
+To start training run model.py. This script reads the data from the "/preprocessedImages" folder. The data is then scaled and a model is created. After fitting the model to the training data with a validation split the model is automatically evaluated with the test split that had also been created. This prints an eval score to the console. After this, all the predicted and the real values are displayed for the test split. Each row in the console contains 4 numbers in the form of
+\[pred_vel, pred_steer\], \[y_vel, y_steer\].
+These numbers may look odd at first, however these are not the final predictions since the Y labels have been scaled with a standardScaler and the printed results will have to be scaled back to have a meaning.
+For demonstrational purposes, our best model, to-date, can also be downloaded from:
+https://onedrive.live.com/?authkey=%21AP7HuJgjv7pjAS4&id=7961F412AD7C6165%211597&cid=7961F412AD7C6165
