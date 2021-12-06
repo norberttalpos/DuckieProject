@@ -118,6 +118,9 @@ class MyInteractiveImitationLearning:
 
 
         control_policy = self._mix()
+
+        print("Learner is driving:",control_policy == self.learner)
+
         control_action = control_policy.predict(self.environment, self.observation)
 
         self._query_expert(control_policy, control_action, self.observation)

@@ -10,6 +10,7 @@ from duckieGym.DaggerTeacher import DaggerTeacher
 from duckieGym.IIL import InteractiveImitationLearning
 from duckieGym.daggerSandBox import MyInteractiveImitationLearning
 from duckieGym.detector import preprocess_image
+from duckieGym.model import read_data, scale
 
 
 class DAgger(MyInteractiveImitationLearning):
@@ -37,15 +38,24 @@ class DAgger(MyInteractiveImitationLearning):
         self.convergence_distance = 0.05
         self.convergence_angle = np.pi / 18
 
+        self.learner_streak = 0
+        self.teacher_streak = 0
+
+
         # threshold on angle and distance from the lane when using the model to avoid going off track and env reset within an episode
         self.angle_limit = np.pi / 8
         self.distance_limit = 0.12
 
     def _mix(self):
+        control_policy = self.learner
+        #control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
 
-        control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
+        if self.learner_streak > 50:
+            self.learner_streak = 0
+            return self.teacher
 
         if self._found_obstacle:
+            self.learner_streak = 0
             return self.teacher
         try:
             lp = self.environment.get_lane_pos2(self.environment.cur_pos, self.environment.cur_angle)
@@ -54,14 +64,17 @@ class DAgger(MyInteractiveImitationLearning):
         if self.active_policy:
             # keep using teacher until duckiebot converges back on track
             if not (abs(lp.dist) < self.convergence_distance and abs(lp.angle_rad) < self.convergence_angle):
+                self.learner_streak = 0
                 return self.teacher
         else:
             # in case we are using our learner and it started to diverge a lot we need to give
             # control back to the expert
             if abs(lp.dist) > self.distance_limit or abs(lp.angle_rad) > self.angle_limit:
+                self.learner_streak = 0
                 return self.teacher
 
         self.learnerIdxs.append(self.learnerDecisions + self.teacherDecisions)
+        self.learner_streak+=1
         return control_policy
 
     def _on_episode_done(self):
@@ -118,7 +131,7 @@ if __name__ == "__main__":
         full_transparency=True,
     )
 
-    model = load_model("0.3val_loss.hdf5")
+    model = load_model("idfk.hdf5")
     iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=500, episodes=1)
     iil.train()
     observation = iil.get_observations()
@@ -130,9 +143,18 @@ if __name__ == "__main__":
         img.save(os.path.join(path, str(id) + ".png"))
 
     labels = iil.get_expert_actions()
-
+    print("saving {number} images...".format(number=len(labels)))
     filepath = os.path.join(os.getcwd(), "daggerObservations")
     with open(os.path.join(os.getcwd(), "labels.txt"), "w") as f:
         for label in labels:
             f.write(str(label[0]) + " " + str(label[1]))
             f.write("\n")
+
+
+    X,y = read_data("daggerObservations","labels.txt")
+
+    (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
+
+    model.fit(X,y,validation_split=0.2, epochs=10,shuffle=True)
+
+    model.save("idfk.hdf5")

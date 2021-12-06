@@ -119,7 +119,7 @@ def train_model(model, X_train, Y_train, X_valid, Y_valid):
 
 
 
-
+"""
 X, Y = read_data()
 
 #TODO swap scale and split_data order
@@ -137,3 +137,4 @@ y_test_pred = model.predict(X_test)
 
 for idx, pred in enumerate(y_test_pred): #TODO maybe pyplot history after training
     print(pred, Y_test[idx])
+"""
