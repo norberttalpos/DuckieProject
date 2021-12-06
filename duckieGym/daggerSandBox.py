@@ -1,4 +1,15 @@
-class InteractiveImitationLearning:
+import argparse
+import os
+
+from PIL import Image
+from gym_duckietown.envs import DuckietownEnv
+from keras.models import load_model
+
+from duckieGym.DaggerLearner import DaggerLearner
+from duckieGym.DaggerTeacher import DaggerTeacher
+
+
+class MyInteractiveImitationLearning:
     """
     A class used to contain main imitation learning algorithm
     ...
@@ -71,19 +82,26 @@ class InteractiveImitationLearning:
         for episode in range(self._episodes):
             self._episode = episode
             self._sampling()
-            self._optimize()  # episodic learning
-            self._on_episode_done()
+            #self._optimize()  # episodic learning
+            #self._on_episode_done()
+
+    def get_observations(self):
+        return self._observations
+
+    def get_expert_actions(self):
+        return self._expert_actions
 
 
     def _sampling(self):
 
-        observation = self.environment.render_obs() #get the first frame
+        self.observation = self.environment.render_obs() #get the first frame
 
         #for every frame in eposiode
         for frame in range(self._frame):
+            print("frame",frame)
             self._current_frame = frame
 
-            action = self._act(observation)
+            action = self._act(self.observation)
 
             try: #give the env the action and get back the state of the env
                 next_observation, reward, done, info = self.environment.step(
@@ -93,17 +111,16 @@ class InteractiveImitationLearning:
                 print(e)
             if self._debug: #TODO kell?
                 self.environment.render()
-            observation = next_observation
+            self.observation = next_observation
 
     # choose control policy and get the action
     def _act(self, observation):
 
 
         control_policy = self._mix()
+        control_action = control_policy.predict(self.environment, self.observation)
 
-        control_action = control_policy.predict(self.environment)
-
-        self._query_expert(control_policy, control_action, self.environment)
+        self._query_expert(control_policy, control_action, self.observation)
 
         self.active_policy = (control_policy == self.teacher)
         if self.test:
@@ -113,22 +130,22 @@ class InteractiveImitationLearning:
 
 
     #save the teachers actions and observations
-    def _query_expert(self, control_policy, control_action, env):
+    def _query_expert(self, control_policy, control_action, observation):
 
         if control_policy == self.learner:
             self.learner_action = control_action
         else:
-            self.learner_action = self.learner.predict(env)
+            self.learner_action = self.learner.predict(self.environment, self.observation)
 
 
         if control_policy == self.teacher:
             self.teacher_action = control_action
         else:
-            self.teacher_action = self.teacher.predict(env)
+            self.teacher_action = self.teacher.predict(self.environment, self.observation)
 
 
         if self.teacher_action is not None:
-            self._aggregate(env.obs, self.teacher_action)
+            self._aggregate(self.observation, self.teacher_action)
 
 
         if self.teacher_action[0] < 0.1:
@@ -153,3 +170,7 @@ class InteractiveImitationLearning:
         for listener in self._episode_done_listeners:
             listener.episode_done(self._episode)
         self.environment.reset()
+
+
+
+
