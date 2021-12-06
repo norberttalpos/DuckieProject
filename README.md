@@ -25,6 +25,8 @@ For teaching, we convert the images back to a numpy array format with shape of (
   Data 1 : [<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1147px-Google_Drive_icon_%282020%29.svg.png" width="20"/>](https://drive.google.com/drive/folders/124WPRwzaz-ePeScy4qqRwlmeeOi_Ii7w?usp=sharing)
   
   Data 2 : [<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1147px-Google_Drive_icon_%282020%29.svg.png" width="20"/>](https://drive.google.com/file/d/1-Hm0SgFPcqoTUjNcBEBRo7vR-5io4Rxk/view?usp=sharing)
+  
+  Data 3 : [<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1147px-Google_Drive_icon_%282020%29.svg.png" width="20"/>](https://drive.google.com/file/d/1agHd80lq5hrRZEONezmFWVvw3y8VbPF1/view?usp=sharing)
 
 Milestone 2:
 
