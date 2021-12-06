@@ -5,15 +5,15 @@ import numpy as np
 from PIL import Image
 
 
-sarga = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "sarga.png"))
-sarga = cv.cvtColor(sarga, cv.COLOR_RGB2BGR)
-szurke = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "szurke.png"))
-szurke = cv.cvtColor(szurke, cv.COLOR_RGB2BGR)
-barna = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "tablabarna.png"))
-barna = cv.cvtColor(barna, cv.COLOR_RGB2BGR)
-fekete = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "fekete.png"))
-narancs = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "narancs.png"))
-narancs = cv.cvtColor(narancs, cv.COLOR_RGB2BGR)
+yellow = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "yellow.png"))
+yellow = cv.cvtColor(yellow, cv.COLOR_RGB2BGR)
+gray = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "gray.png"))
+gray = cv.cvtColor(gray, cv.COLOR_RGB2BGR)
+brown = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "tablabrown.png"))
+brown = cv.cvtColor(brown, cv.COLOR_RGB2BGR)
+black = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "black.png"))
+orange = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "orange.png"))
+orange = cv.cvtColor(orange, cv.COLOR_RGB2BGR)
 
 def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
     hsv = cv.cvtColor(cv2img, cv.COLOR_BGR2HSV)
@@ -29,7 +29,7 @@ def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
     res_org = cv.bitwise_and(cv2img,cv2img, mask=org_mask)
     res_org = cv.bitwise_not(res_org,res_org, mask=yellow_mask)
     res_org = cv.bitwise_and(res_org,cv2img, mask=org_mask)
-    res_org = np.where(res_org!=0,narancs,fekete)
+    res_org = np.where(res_org!=0,orange,black)
 
     lower_gray = np.array([0, 0, 95], np.uint8)
     upper_gray = np.array([179, 50, 255], np.uint8)
@@ -41,7 +41,7 @@ def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
     res_grey = cv.bitwise_and(cv2img, cv2img, mask=grey_mask)
     res_yellow = cv.bitwise_and(cv2img, cv2img, mask=yellow_mask)
     
-    res_grey = np.where(res_grey!=0,szurke,fekete)
+    res_grey = np.where(res_grey!=0,gray,black)
     
     lower_yellow2 = np.array([120, 120, 0], dtype="uint8")
     upper_yellow2 = np.array([255, 235, 200], dtype="uint8")
@@ -54,11 +54,11 @@ def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
     
     #brown_mask = cv.inRange(cv2img, lower_brown, upper_brown)
     #res_brown = cv.bitwise_and(cv2img, cv2img, mask=brown_mask)
-    #res_brown = np.where(res_brown!=0,barna,fekete)
+    #res_brown = np.where(res_brown!=0,brown,black)
 
     yellow_mask = cv.inRange(res_yellow, lower_yellow2, upper_yellow2)
     res_yellow = cv.bitwise_and(res_yellow, res_yellow, mask=yellow_mask)
-    res_yellow = np.where(res_yellow!=0,sarga,fekete)
+    res_yellow = np.where(res_yellow!=0,yellow,black)
 
     gray = cv.cvtColor(cv2img, cv.COLOR_BGR2GRAY)
     edges = cv.Canny(gray, 250, 400, apertureSize=3)
