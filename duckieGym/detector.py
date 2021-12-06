@@ -5,14 +5,14 @@ import numpy as np
 from PIL import Image
 
 
-yellow = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "yellow.png"))
+yellow = cv.imread(os.path.join(os.getcwd(), "colorBases", "yellow.png"))
 yellow = cv.cvtColor(yellow, cv.COLOR_RGB2BGR)
-gray = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "gray.png"))
+gray = cv.imread(os.path.join(os.getcwd(), "colorBases", "gray.png"))
 gray = cv.cvtColor(gray, cv.COLOR_RGB2BGR)
-brown = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "tablabrown.png"))
+brown = cv.imread(os.path.join(os.getcwd(), "colorBases", "sign_brown.png"))
 brown = cv.cvtColor(brown, cv.COLOR_RGB2BGR)
-black = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "black.png"))
-orange = cv.imread(os.path.join(os.getcwd(), "szinAlapok", "orange.png"))
+black = cv.imread(os.path.join(os.getcwd(), "colorBases", "black.png"))
+orange = cv.imread(os.path.join(os.getcwd(), "colorBases", "orange.png"))
 orange = cv.cvtColor(orange, cv.COLOR_RGB2BGR)
 
 def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
