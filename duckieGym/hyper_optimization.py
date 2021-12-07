@@ -70,7 +70,7 @@ def hyperopti():
         build_model,
         objective='val_accuracy',
         factor=3,
-        max_epochs=10,
+        max_epochs=160,
         directory='./duckieGym/hyperopti',
         project_name='dl_khf5')
 
