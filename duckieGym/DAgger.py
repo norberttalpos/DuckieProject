@@ -11,6 +11,7 @@ from duckieGym.IIL import InteractiveImitationLearning
 from duckieGym.daggerSandBox import MyInteractiveImitationLearning
 from duckieGym.detector import preprocess_image
 from duckieGym.model import read_data, scale
+from tensorflow.keras.callbacks import EarlyStopping
 
 
 class DAgger(MyInteractiveImitationLearning):
@@ -41,14 +42,13 @@ class DAgger(MyInteractiveImitationLearning):
         self.learner_streak = 0
         self.teacher_streak = 0
 
-
         # threshold on angle and distance from the lane when using the model to avoid going off track and env reset within an episode
         self.angle_limit = np.pi / 8
         self.distance_limit = 0.12
 
     def _mix(self):
         control_policy = self.learner
-        #control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
+        # control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
 
         if self.learner_streak > 50:
             self.learner_streak = 0
@@ -74,7 +74,7 @@ class DAgger(MyInteractiveImitationLearning):
                 return self.teacher
 
         self.learnerIdxs.append(self.learnerDecisions + self.teacherDecisions)
-        self.learner_streak+=1
+        self.learner_streak += 1
         return control_policy
 
     def _on_episode_done(self):
@@ -133,28 +133,40 @@ if __name__ == "__main__":
 
     model = load_model("idfk.hdf5")
     iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=500, episodes=1)
-    iil.train()
-    observation = iil.get_observations()
 
-    for id, obs in enumerate(observation):
-        img = preprocess_image(obs)
+    n_dagger_runs = 20
 
-        path = os.path.join(os.getcwd(), "daggerObservations")
-        img.save(os.path.join(path, str(id) + ".png"))
+    for run in range(n_dagger_runs):
+        print("Running Dagger... Run:", run)
 
-    labels = iil.get_expert_actions()
-    print("saving {number} images...".format(number=len(labels)))
-    filepath = os.path.join(os.getcwd(), "daggerObservations")
-    with open(os.path.join(os.getcwd(), "labels.txt"), "w") as f:
-        for label in labels:
-            f.write(str(label[0]) + " " + str(label[1]))
-            f.write("\n")
+        dagger_run_dir = os.path.join("daggerObservations", str(run))
 
+        # run dagger
+        iil.train()
 
-    X,y = read_data("daggerObservations","labels.txt")
+        # get and save images
+        observation = iil.get_observations()
 
-    (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
+        for id, obs in enumerate(observation):
+            img = preprocess_image(obs)
 
-    model.fit(X,y,validation_split=0.2, epochs=10,shuffle=True)
+            path = os.path.join(os.getcwd(), dagger_run_dir)
+            img.save(os.path.join(path, str(id) + ".png"))
 
-    model.save("idfk.hdf5")
+        # get labels from expert
+        labels = iil.get_expert_actions()
+        print("\tsaving {number} images...".format(number=len(labels)))
+        filepath = os.path.join(os.getcwd(), dagger_run_dir)
+        with open(os.path.join(os.getcwd(), "labels.txt"), "a") as f:
+            for label in labels:
+                f.write(str(label[0]) + " " + str(label[1]))
+                f.write("\n")
+
+        # train model on the new dagger data
+        X, y = read_data(dagger_run_dir, "labels.txt")
+        (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
+        early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
+        print("\tTraining model:",run)
+        model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
+
+    model.save("dagger_trained.hdf5")
