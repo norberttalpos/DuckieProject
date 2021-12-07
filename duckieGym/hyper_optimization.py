@@ -57,7 +57,7 @@ def build_model(hp):
     model.add(Dropout(hp.Float('dropout', min_value=0.1, max_value=0.9, step=0.2)))
     model.add(Dense(2, activation="linear"))
 
-    model.compile(optimizer=Adam(hp.Choice('learning_rate', values=[1e-2, 1e-3])),
+    model.compile(optimizer=Adam(hp.Choice('learning_rate', values=[0.001, 0.0001, 0.00001])),
                   loss='mse',
                   metrics=['mse'],
                   )
