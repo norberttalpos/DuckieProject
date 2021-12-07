@@ -72,7 +72,7 @@ def hyperopti():
         factor=3,
         max_epochs=160,
         directory='./duckieGym/hyperopti',
-        project_name='dl_khf5')
+        project_name='duckieTown')
 
     tuner.search_space_summary()
 
