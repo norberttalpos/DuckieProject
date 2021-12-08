@@ -7,8 +7,8 @@ from model import *
 def create_x_y():
     X, Y = read_data()
 
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.30, random_state = 42)
-    X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test, test_size = 0.5, random_state = 42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.30, random_state=42)
+    X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
 
     (X_train_scaled, Y_train_scaled), velocity_steering_scaler_train = scale(X_train, y_train)
     (X_valid_scaled, Y_valid_scaled), velocity_steering_scaler_valid = scale(X_valid, y_valid)
@@ -58,6 +58,49 @@ def build_model(hp):
     model.add(Dense(2, activation="linear"))
 
     model.compile(optimizer=Adam(hp.Choice('learning_rate', values=[0.001, 0.0001, 0.00001])),
+                  loss='mse',
+                  metrics=['mse'],
+                  )
+
+    return model
+
+
+def build_model_test_hyperopti(hp):
+    model = Sequential()
+
+    model.add(Conv2D(filters=64,
+                     kernel_size=5,
+                     input_shape=input_shape
+                     )
+              )
+    model.add(BatchNormalization())
+    model.add(LeakyReLU())
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(Conv2D(filters=16,
+                     kernel_size=5,
+                     )
+              )
+    model.add(BatchNormalization())
+    model.add(LeakyReLU())
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(Conv2D(filters=4,
+                     kernel_size=5,
+                     )
+              )
+    model.add(BatchNormalization())
+    model.add(LeakyReLU())
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Flatten())
+    model.add(Dropout())
+
+    model.add(Dense(12000, activation="relu", kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4)))
+    model.add(Dropout(0.2))
+    model.add(Dense(2, activation="linear"))
+
+    model.compile(optimizer=Adam(hp.Choice('learning_rate', values=[0.0001, 0.00001])),
                   loss='mse',
                   metrics=['mse'],
                   )
