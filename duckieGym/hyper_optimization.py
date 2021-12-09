@@ -57,7 +57,7 @@ def build_model(hp):
     model.add(Dropout(hp.Float('dropout', min_value=0.1, max_value=0.9, step=0.2)))
     model.add(Dense(2, activation="linear"))
 
-    model.compile(optimizer=Adam(hp.Choice('learning_rate', values=[0.001, 0.0001, 0.00001])),
+    model.compile(optimizer=Adam(hp.Choice('learning_rate', values=[0.01, 0.001, 0.0001])),
                   loss='mse',
                   metrics=['mse'],
                   )
@@ -113,7 +113,7 @@ def hyperopti():
         build_model,
         objective='val_accuracy',
         factor=3,
-        max_epochs=160,
+        max_epochs=10,
         directory='./duckieGym/hyperopti',
         project_name='duckieTown')
 
