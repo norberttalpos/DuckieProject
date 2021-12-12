@@ -4,13 +4,14 @@ import os
 import numpy as np
 from gym_duckietown.envs import DuckietownEnv
 from keras.models import load_model
+from tensorflow import keras
 
-from duckieGym.DaggerLearner import DaggerLearner
-from duckieGym.DaggerTeacher import DaggerTeacher
-from duckieGym.IIL import InteractiveImitationLearning
-from duckieGym.daggerSandBox import MyInteractiveImitationLearning
-from duckieGym.detector import preprocess_image
-from duckieGym.model import read_data, scale
+from DaggerLearner import DaggerLearner
+from DaggerTeacher import DaggerTeacher
+from IIL import InteractiveImitationLearning
+from daggerSandBox import MyInteractiveImitationLearning
+from detector import preprocess_image
+from model import read_data, scale
 from tensorflow.keras.callbacks import EarlyStopping
 
 
@@ -30,6 +31,7 @@ class DAgger(MyInteractiveImitationLearning):
         # expert decay
         self.p = alpha
         self.alpha = self.p
+        self.counter=0
 
         self.teacherDecisions = 0
         self.learnerDecisions = 0
@@ -48,6 +50,7 @@ class DAgger(MyInteractiveImitationLearning):
 
     def _mix(self):
         control_policy = self.learner
+        return control_policy
         # control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
 
         if self.learner_streak > 50:
@@ -131,7 +134,7 @@ if __name__ == "__main__":
         full_transparency=True,
     )
 
-    model = load_model("idfk.hdf5")
+    model = load_model("/tmp/dagger2")
     iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=500, episodes=1)
 
     n_dagger_runs = 20
@@ -161,12 +164,15 @@ if __name__ == "__main__":
             for label in labels:
                 f.write(str(label[0]) + " " + str(label[1]))
                 f.write("\n")
+        #observations=[]
+        #expert_actions=[]
 
         # train model on the new dagger data
         X, y = read_data(dagger_run_dir, "labels.txt")
         (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
         early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
         print("\tTraining model:",run)
-        model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
+        #model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
 
-    model.save("dagger_trained.hdf5")
+    keras.models.save_model(model,"/tmp/model2")
+    #model.save("dagger_trained.hdf5")

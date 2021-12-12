@@ -102,7 +102,7 @@ class DaggerTeacher:
             omega = 0
 
         action = [velocity, omega]
-
+        print("Teacher predict: ",velocity,omega)
         return action
 
     def _get_projected_angle_difference(self, lookup_distance):

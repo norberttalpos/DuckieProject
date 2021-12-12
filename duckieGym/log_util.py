@@ -71,7 +71,7 @@ class Logger:
 
         self.save_image_and_labels(episode)
 
-        pickle.dump(episode, self._log_file)
+        #pickle.dump(episode, self._log_file)
         self._log_file.flush()
         # del self.recording[:]
         # self.recording.clear()

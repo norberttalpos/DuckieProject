@@ -36,6 +36,7 @@ class InteractiveImitationLearning:
         # data
         self._observations = []
         self._expert_actions = []
+        self.counter=0
 
         # statistics
         self.learner_action = None
@@ -141,8 +142,12 @@ class InteractiveImitationLearning:
 
     def _aggregate(self, observation, action):
         if not (self.test):
+            #if (self.counter<1):
             self._observations.append(observation)
             self._expert_actions.append(action)
+            #self.counter+=1
+            #if (self.counter>4):
+             #   self.counter=0
 
 
 

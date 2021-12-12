@@ -11,7 +11,7 @@ from os import listdir
 import numpy as np
 from tensorflow.python.keras.layers import Dropout
 
-from duckieGym.LoggerCallback import LoggerCallback
+from LoggerCallback import LoggerCallback
 
 
 def scheduler(epoch):

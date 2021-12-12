@@ -1,0 +1,5 @@
+Number of Steps: 51	 Reward: -216.7059
+Number of Steps: 62	 Reward: -102.1655
+Number of Steps: 36	 Reward: 14.8371
+Number of Steps: 156	 Reward: -10.6201
+Number of Steps: 78	 Reward: -51.2007

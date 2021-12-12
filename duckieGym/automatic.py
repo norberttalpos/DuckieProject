@@ -27,6 +27,7 @@ class DataGenerator:
         if not log_file:
             log_file = f"dataset.log"
         self.env = env
+        self.counter = 0
         self.env.reset()
         self.logger = Logger(self.env, log_file=log_file)
         self.episode = 1
@@ -162,7 +163,11 @@ class DataGenerator:
                 # print(f"Saved image shape: {cropped.shape}")
 
             step = Step(output_img, reward, action, done)
-            self.logger.log(step, info)
+            if (self.counter<1):
+                self.logger.log(step, info)
+            self.counter+=1
+            if (self.counter>4):
+                self.counter=0
             # rawlog.log(obs, action, reward, done, info)
             # last_reward = reward
 
@@ -182,7 +187,7 @@ if __name__ == "__main__":
     # ! Parser sector:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env-name", default=None)
-    parser.add_argument("--map-name", default="zigzag_dists")
+    parser.add_argument("--map-name", default="12")
     parser.add_argument(
         "--draw-curve", default=False, help="draw the lane following curve"
     )
@@ -198,7 +203,7 @@ if __name__ == "__main__":
         "--raw-log", default=False, help="enables recording high resolution raw log"
     )
     parser.add_argument(
-        "--steps", default=1000, help="number of steps to record in one batch", type=int
+        "--steps", default=4500, help="number of steps to record in one batch", type=int
     )
     parser.add_argument("--nb-episodes", default=1, type=int)
     parser.add_argument("--logfile", type=str, default=None)

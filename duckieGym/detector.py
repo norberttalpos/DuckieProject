@@ -79,7 +79,7 @@ def preprocess_image(cv2img):
 
     # resizing the image for training to 85x48 (48 height and the according width to keep cropped image size ratio
     img = img.resize((85,48))
-
+    #img = img.resize((64,64))
     return img
 
 

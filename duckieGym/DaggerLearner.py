@@ -1,6 +1,6 @@
 import numpy as np
 
-from duckieGym.detector import preprocess_image
+from detector import preprocess_image
 
 import tensorflow as tf
 
@@ -23,5 +23,5 @@ class DaggerLearner:
         y = self.model.predict(x)
 
         # (velo, steer)
-
-        return (y[0][0], y[0][1])
+        print ("Learner predict: ",y[0][0],y[0][1], y)
+        return (y[0][0]*2.0+0.0, y[0][1]*5.0)
