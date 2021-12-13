@@ -1,12 +1,17 @@
-import os
-
 from keras_tuner.tuners import Hyperband
+from sklearn.model_selection import train_test_split
 # from keras.models import load_model
 from tensorflow import keras
-from sklearn.model_selection import train_test_split
 
-from data_reader import *
+from keras import regularizers
+from tensorflow.keras.layers import Conv2D, LeakyReLU, BatchNormalization, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.python.keras.layers import Dropout
+
 from callbacks import *
+from data_reader import *
+from duckieGym.logger_callback import LoggerCallback
 
 
 def create_x_y():

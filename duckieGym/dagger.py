@@ -1,127 +1,180 @@
-from gym_torcs import TorcsEnv
+import argparse
+import os
+
 import numpy as np
+from gym_duckietown.envs import DuckietownEnv
+from tensorflow import keras
+from keras.models import load_model
 
-img_dim = [64,64,3]
-action_dim = 1
-steps = 1000
-batch_size = 32
-nb_epoch = 100
+from dagger_learner import DaggerLearner
+from dagger_teacher import DaggerTeacher
+from IIL import InteractiveImitationLearning
+from dagger_sandbox import MyInteractiveImitationLearning
+from detector import preprocess_image
+from data_reader import *
+from tensorflow.keras.callbacks import EarlyStopping
 
-def get_teacher_action(ob):
-    steer = ob.angle*10/np.pi
-    steer -= ob.trackPos*0.10
-    return np.array([steer])
 
-def img_reshape(input_img):
-    _img = np.transpose(input_img, (1, 2, 0))
-    _img = np.flipud(_img)
-    _img = np.reshape(_img, (1, img_dim[0], img_dim[1], img_dim[2]))
-    return _img
+class DAgger(MyInteractiveImitationLearning):
+    """
+    DAgger algorithm to mix policies between learner and expert
+    Ross, Stéphane, Geoffrey Gordon, and Drew Bagnell. "A reduction of imitation learning and structured prediction to no-regret online learning." Proceedings of the fourteenth international conference on artificial intelligence and statistics. 2011.
+    ...
+    Methods
+    -------
+    _mix
+        used to return a policy teacher / expert based on random choice and safety checks
+    """
 
-images_all = np.zeros((0, img_dim[0], img_dim[1], img_dim[2]))
-actions_all = np.zeros((0,action_dim))
-rewards_all = np.zeros((0,))
+    def __init__(self, env, teacher, learner, horizon, episodes, alpha=0.5, test=False):
+        MyInteractiveImitationLearning.__init__(self, env, teacher, learner, horizon, episodes, test)
+        # expert decay
+        self.p = alpha
+        self.alpha = self.p
+        self.counter = 0
 
-img_list = []
-action_list = []
-reward_list = []
+        self.teacherDecisions = 0
+        self.learnerDecisions = 0
+        self.learnerIdxs = []  # frame indexes during which the learner was behind the wheel
 
-env = TorcsEnv(vision=True, throttle=False)
-ob = env.reset(relaunch=True)
+        # thresholds used to give control back to learner once the teacher converges
+        self.convergence_distance = 0.05
+        self.convergence_angle = np.pi / 18
 
-print('Collecting data...')
-for i in range(steps):
-    if i == 0:
-        act = np.array([0.0])
-    else:
-        act = get_teacher_action(ob)
+        self.learner_streak = 0
+        self.teacher_streak = 0
 
-    if i%100 == 0:
-        print(i)
-    ob, reward, done, _ = env.step(act)
-    img_list.append(ob.img)
-    action_list.append(act)
-    reward_list.append(np.array([reward]))
+        # threshold on angle and distance from the lane when using the model to avoid going off track and env reset within an episode
+        self.angle_limit = np.pi / 8
+        self.distance_limit = 0.12
 
-env.end()
+    def _mix(self):
+        control_policy = self.learner
+        # control_policy = self.teacher
+        return control_policy
+        # control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
 
-print('Packing data into arrays...')
-for img, act, rew in zip(img_list, action_list, reward_list):
-    images_all = np.concatenate([images_all, img_reshape(img)], axis=0)
-    actions_all = np.concatenate([actions_all, np.reshape(act, [1,action_dim])], axis=0)
-    rewards_all = np.concatenate([rewards_all, rew], axis=0)
+        if self.learner_streak > 50:
+            self.learner_streak = 0
+            return self.teacher
 
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D
-from keras.optimizers import Adam
-
-#model from https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py
-model = Sequential()
-
-model.add(Convolution2D(32, 3, 3, border_mode='same',
-                        input_shape=img_dim))
-model.add(Activation('relu'))
-model.add(Convolution2D(32, 3, 3))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-
-model.add(Convolution2D(64, 3, 3, border_mode='same'))
-model.add(Activation('relu'))
-model.add(Convolution2D(64, 3, 3))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-
-model.add(Flatten())
-model.add(Dense(512))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(action_dim))
-model.add(Activation('tanh'))
-
-model.compile(loss='mean_squared_error',
-              optimizer=Adam(lr=1e-4),
-              metrics=['mean_squared_error'])
-
-model.fit(images_all, actions_all,
-              batch_size=batch_size,
-              nb_epoch=nb_epoch,
-              shuffle=True)
-
-output_file = open('results.txt', 'w')
-
-#aggregate and retrain
-dagger_itr = 5
-for itr in range(dagger_itr):
-    ob_list = []
-
-    env = TorcsEnv(vision=True, throttle=False)
-    ob = env.reset(relaunch=True)
-    reward_sum = 0.0
-
-    for i in range(steps):
-        act = model.predict(img_reshape(ob.img))
-        ob, reward, done, _ = env.step(act)
-        if done is True:
-            break
+        if self._found_obstacle:
+            self.learner_streak = 0
+            return self.teacher
+        try:
+            lp = self.environment.get_lane_pos2(self.environment.cur_pos, self.environment.cur_angle)
+        except:
+            return control_policy
+        if self.active_policy:
+            # keep using teacher until duckiebot converges back on track
+            if not (abs(lp.dist) < self.convergence_distance and abs(lp.angle_rad) < self.convergence_angle):
+                self.learner_streak = 0
+                return self.teacher
         else:
-            ob_list.append(ob)
-        reward_sum += reward
-        print(i, reward, reward_sum, done, str(act[0]))
-    print('Episode done ', itr, i, reward_sum)
-    output_file.write('Number of Steps: %02d\t Reward: %0.04f\n'%(i, reward_sum))
-    env.end()
+            # in case we are using our learner and it started to diverge a lot we need to give
+            # control back to the expert
+            if abs(lp.dist) > self.distance_limit or abs(lp.angle_rad) > self.angle_limit:
+                self.learner_streak = 0
+                return self.teacher
 
-    if i==(steps-1):
-        break
+        self.learnerIdxs.append(self.learnerDecisions + self.teacherDecisions)
+        self.learner_streak += 1
+        return control_policy
 
-    for ob in ob_list:
-        images_all = np.concatenate([images_all, img_reshape(ob.img)], axis=0)
-        actions_all = np.concatenate([actions_all, np.reshape(get_teacher_action(ob), [1,action_dim])], axis=0)
+    def _on_episode_done(self):
+        self.alpha = self.p ** self._episode
+        # Clear experience
+        self._observations = []
+        self._expert_actions = []
 
-    model.fit(images_all, actions_all,
-                  batch_size=batch_size,
-                  nb_epoch=nb_epoch,
-                  shuffle=True)
+        InteractiveImitationLearning._on_episode_done(self)
+
+    @property
+    def observations(self):
+        return self._observations
+
+
+if __name__ == "__main__":
+    # ! Parser sector:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--env-name", default=None)
+    parser.add_argument("--map-name", default="zigzag_dists")
+    parser.add_argument(
+        "--draw-curve", default=False, help="draw the lane following curve"
+    )
+    parser.add_argument(
+        "--draw-bbox", default=False, help="draw collision detection bounding boxes"
+    )
+    parser.add_argument(
+        "--domain-rand", default=False, help="enable domain randomization"
+    )
+    parser.add_argument("--distortion", default=True)
+
+    parser.add_argument(
+        "--raw-log", default=False, help="enables recording high resolution raw log"
+    )
+    parser.add_argument(
+        "--steps", default=1000, help="number of steps to record in one batch", type=int
+    )
+    parser.add_argument("--nb-episodes", default=1, type=int)
+    parser.add_argument("--logfile", type=str, default=None)
+    parser.add_argument("--downscale", action="store_true")
+
+    args = parser.parse_args()
+
+    # ! Start Env
+
+    env = DuckietownEnv(
+        map_name=args.map_name,
+        max_steps=args.steps,
+        draw_curve=args.draw_curve,
+        draw_bbox=args.draw_bbox,
+        domain_rand=args.domain_rand,
+        distortion=args.distortion,
+        accept_start_angle_deg=4,
+        full_transparency=True,
+    )
+
+    model = load_model("/tmp/dagger12")
+
+    iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=500, episodes=1)
+
+    n_dagger_runs = 20
+
+    for run in range(n_dagger_runs):
+        print("Running Dagger... Run:", run)
+
+        dagger_run_dir = os.path.join("daggerObservations", str(run))
+
+        # run dagger
+        iil.train()
+
+        # get and save images
+        observation = iil.get_observations()
+
+        for id, obs in enumerate(observation):
+            img = preprocess_image(obs)
+
+            path = os.path.join(os.getcwd(), dagger_run_dir)
+            img.save(os.path.join(path, str(id) + ".png"))
+
+        # get labels from expert
+        labels = iil.get_expert_actions()
+        print("\tsaving {number} images...".format(number=len(labels)))
+        filepath = os.path.join(os.getcwd(), dagger_run_dir)
+        with open(os.path.join(os.getcwd(), "labels.txt"), "a") as f:
+            for label in labels:
+                f.write(str(label[0]) + " " + str(label[1]))
+                f.write("\n")
+        # observations=[]
+        # expert_actions=[]
+
+        # train model on the new dagger data
+        X, y = read_data(dagger_run_dir, "labels.txt")
+        (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
+        early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
+        print("\tTraining model:", run)
+        # model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
+
+    keras.models.save_model(model, "/tmp/model22")
+    # model.save("dagger_trained.hdf5")
