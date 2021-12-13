@@ -1,9 +1,10 @@
 import argparse
 import os
+import time
 
 import numpy as np
 from gym_duckietown.envs import DuckietownEnv
-from keras.models import load_model
+from keras.models import load_model, Sequential
 from tensorflow import keras
 
 from dagger_learner import DaggerLearner
@@ -14,7 +15,7 @@ from detector import preprocess_image
 from data_reader import *
 from tensorflow.keras.callbacks import EarlyStopping
 from callbacks import *
-
+from modelfit import *
 
 class DAgger(MyInteractiveImitationLearning):
     """
@@ -51,7 +52,7 @@ class DAgger(MyInteractiveImitationLearning):
 
     def _mix(self):
         control_policy = self.learner
-        return control_policy
+        #return control_policy
         # control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
 
         if self.learner_streak > 50:
@@ -119,31 +120,45 @@ if __name__ == "__main__":
     parser.add_argument("--nb-episodes", default=1, type=int)
     parser.add_argument("--logfile", type=str, default=None)
     parser.add_argument("--downscale", action="store_true")
+    parser.add_argument("--model_path", default=None)
 
     args = parser.parse_args()
 
     # ! Start Env
 
-    env = DuckietownEnv(
-        map_name=args.map_name,
-        max_steps=args.steps,
-        draw_curve=args.draw_curve,
-        draw_bbox=args.draw_bbox,
-        domain_rand=args.domain_rand,
-        distortion=args.distortion,
-        accept_start_angle_deg=4,
-        full_transparency=True,
-    )
 
-    model = load_model("/tmp/dagger2")
-    iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=500, episodes=1)
+    print("alma")
+    (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test) = create_x_y()
 
-    n_dagger_runs = 20
+    print("balma")
+    model = load_model("/tmp/duckie3.hdf5")
+    #model = Sequential()
+    #model.load_weights(args.model_path)
+    eval_result = model.evaluate(X_test, Y_test)
+    print("[test loss, test accuracy]:", eval_result)
+    print("calma")
 
-    for run in range(n_dagger_runs):
-        print("Running Dagger... Run:", run)
-
-        dagger_run_dir = os.path.join("daggerObservations", str(run))
+    dagger_run_dir = os.path.join("daggerObservations",str(round(time.time() * 1000)) )
+    os.mkdir(dagger_run_dir)
+    print("dalma")
+    for i in range(40):
+        env = DuckietownEnv(
+            map_name=str(i+10),
+            max_steps=args.steps,
+            draw_curve=args.draw_curve,
+            draw_bbox=args.draw_bbox,
+            domain_rand=args.domain_rand,
+            distortion=args.distortion,
+            accept_start_angle_deg=4,
+            full_transparency=True,
+        )
+        iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=100 * 10, episodes=1)
+        print("ilma")
+        #n_dagger_runs = 10
+        dagger_run_dir2 = os.path.join(dagger_run_dir, str(i))
+        os.mkdir(dagger_run_dir2)
+        #for run in range(n_dagger_runs):
+         #   print("Running Dagger... Run:", run)
 
         # run dagger
         iil.train()
@@ -151,34 +166,45 @@ if __name__ == "__main__":
         # get and save images
         observation = iil.get_observations()
 
-        for id, obs in enumerate(observation):
-            img = preprocess_image(obs)
-
-            path = os.path.join(os.getcwd(), dagger_run_dir)
-            img.save(os.path.join(path, str(id) + ".png"))
-
         # get labels from expert
         labels = iil.get_expert_actions()
         print("\tsaving {number} images...".format(number=len(labels)))
-        filepath = os.path.join(os.getcwd(), dagger_run_dir)
+
+
+        image_id = []
+        counter = 0
+        for id, obs in enumerate(observation):
+            if (counter<1):
+                img = preprocess_image(obs)
+                path = os.path.join(os.getcwd(), dagger_run_dir2)
+                time_now = str(round(time.time() * 1000))
+                image_id.append(time_now)
+                img.save(os.path.join(path, time_now + ".png"))
+            counter+=1
+            if (counter>4):
+                counter=0
+
+        filepath = os.path.join(os.getcwd(), dagger_run_dir2)
+        counter = 0
         with open(os.path.join(os.getcwd(), "labels.txt"), "a") as f:
             for label in labels:
-                f.write(str(label[0]) + " " + str(label[1]))
-                f.write("\n")
-        #observations=[]
-        #expert_actions=[]
+                if (counter<1):
+                    f.write(image_id[counter]+" "+str(label[0]) + " " + str(label[1]))
+                    f.write("\n")
+                counter+=1
+                if (counter>4):
+                    counter=0
 
         # train model on the new dagger data
-        X, y = read_data(dagger_run_dir, "labels.txt")
-        (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
-        early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
-        print("\tTraining model:",run)
-        model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
+        X, Y = read_data(dagger_run_dir2, "labels.txt")
+        (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, Y)
 
-        history = model.fit(X, y, epochs=500, validation_split=0.2,
-                                 callbacks=[early_stopping, reduce_lr, checkpoint, change_lr],
-                                 verbose=1,
-                                 shuffle=True)
+        print("\tTraining model:",i)
 
-    keras.models.save_model(model,"/tmp/model2")
-    #model.save("dagger_trained.hdf5")
+        modelfitsplit(model,X_scaled,Y_scaled)
+
+        keras.models.save_model(model,args.model_path)
+
+
+        eval_result = model.evaluate(X_test, Y_test)
+        print("[test loss, test accuracy]:", eval_result)

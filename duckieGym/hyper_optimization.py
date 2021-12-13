@@ -14,17 +14,7 @@ from data_reader import *
 from duckieGym.logger_callback import LoggerCallback
 
 
-def create_x_y():
-    X, Y = read_data()
 
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.15, random_state=42)
-    X_valid, X_test, y_valid, y_test = train_test_split(X_test, y_test, test_size=0.10, random_state=42)
-
-    (X_train_scaled, Y_train_scaled), velocity_steering_scaler_train = scale(X_train, y_train)
-    (X_valid_scaled, Y_valid_scaled), velocity_steering_scaler_valid = scale(X_valid, y_valid)
-    (X_test_scaled, Y_test_scaled), velocity_steering_scaler_test = scale(X_test, y_test)
-
-    return (X_train_scaled, Y_train_scaled), (X_valid_scaled, Y_valid_scaled), (X_test_scaled, Y_test_scaled)
 
 
 (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test) = create_x_y()

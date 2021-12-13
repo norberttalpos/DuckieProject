@@ -45,13 +45,10 @@ else:
 
 env.reset()
 env.render()
-model = load_model("/tmp/duckie.hdf5")
+model = load_model("/tmp/duckie3.hdf5")
 learner=DaggerLearner(model)
 first = False
-#obs, reward, done, info = env.step([0.0,0.0])
 
-
-# global variables for demo recording
 positions = []
 actions = []
 demos = []
@@ -94,110 +91,19 @@ def process_recording():
     # Write all demos to this moment
     write_to_file(demos)
 
-@env.unwrapped.window.event
-def on_key_press(symbol, modifiers):
-    """
-    This handler processes keyboard commands that
-    control the simulation
-    """
-
-    if symbol == key.BACKSPACE or symbol == key.SLASH:
-        print('RESET')
-        env.reset()
-        env.render()
-    elif symbol == key.PAGEUP:
-        env.unwrapped.cam_angle[0] = 0
-        env.render()
-    elif symbol == key.ESCAPE:
-        env.close()
-        sys.exit(0)
-
-@env.unwrapped.window.event
-def on_joybutton_press(joystick, button):
-    """
-    Event Handler for Controller Button Inputs
-    Relevant Button Definitions:
-    1 - A - Starts / Stops Recording
-    0 - X - Deletes last Recording
-    2 - Y - Resets Env.
-
-    Triggers on button presses to control recording capabilities
-    """
-    global recording, positions, actions
-
-    # A Button
-    if button == 1:
-        if not recording:
-            print('Start recording, Press A again to finish')
-            recording = True
-        else:
-            recording = False
-            process_recording()
-            positions = []
-            actions = []
-            print('Saved recording')
-
-    # X Button
-    elif button == 0:
-        recording = False
-        positions = []
-        actions = []
-        process_recording()
-        print('Deleted last recording')
-
-    # Y Button
-    elif button == 3:
-        print('RESET')
-        env.reset()
-        env.render()
-
-    # Any other button thats not boost prints help
-    elif button != 5:
-        helpstr1 = "A - Starts / Stops Recording\nX - Deletes last Recording\n"
-        helpstr2 = "Y - Resets Env.\nRB - Hold for Boost"
-
-        print("Help:\n{}{}".format(helpstr1, helpstr2))
-
-def hapci():
-    return obs
-
 
 def update(dt):
     """
     This function is called at every frame to handle
     movement/stepping and redrawing
     """
-    #global recording, positions, actions
 
-    # No actions took place
-    #if abs(round(joystick.x, 2)) <= 0.1 and abs(round(joystick.y, 2)) <= 0.1:
-     #   env.step(np.array([0,0]))
-      #  #env.reset()
-       # env.render()
-        #return
-
-    x = 0.0
-    z = 0.0
-
-    
-    #if (first):
-    action = np.array([0.0, 0.0])
-    #env.hali()
-    #obs, reward, done, info = env.step(action)
-    #if (first):
     #cec = env.getObs()
-    #hm = hapci()
-    #cec = image.imread("854201.png")
-    #cec = np.array(cec)
     cec, reward, done, info = env.step([0.0,0.0])
     action=learner.predict(env,cec)
-    #action[1]*=10
-    #action[0]*=2.0
-    #action[1]*=5.0
-    #action[1]*=2.0
-    # Right trigger, speed boost
-    #if joystick.buttons[5]:
-     #   action *= 1.5
+    action = np.array(action)
+    action[0] *= 1.0
+    action[1]*=1.0
 
     if recording:
         positions.append((env.unwrapped.cur_pos, env.unwrapped.cur_angle))
@@ -218,9 +124,6 @@ def update(dt):
             print('Saved Recoding')
 
     env.render()
-    #cec = preprocess_image(cec)
-    cec = Image.fromarray(cec, 'RGB')
-    cec.save( "854201.png")
 
 pyglet.clock.schedule_interval(update, 1.0 / env.unwrapped.frame_rate)
 
