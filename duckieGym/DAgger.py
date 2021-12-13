@@ -3,8 +3,9 @@ import os
 
 import numpy as np
 from gym_duckietown.envs import DuckietownEnv
-from keras.models import load_model
 from tensorflow import keras
+from keras.models import load_model
+
 
 from DaggerLearner import DaggerLearner
 from DaggerTeacher import DaggerTeacher
@@ -50,6 +51,7 @@ class DAgger(MyInteractiveImitationLearning):
 
     def _mix(self):
         control_policy = self.learner
+        #control_policy = self.teacher
         return control_policy
         # control_policy = self.learner  #swapped from: np.random.choice(a=[self.teacher, self.learner], p=[self.alpha, 1.0 - self.alpha])
 
@@ -134,7 +136,8 @@ if __name__ == "__main__":
         full_transparency=True,
     )
 
-    model = load_model("/tmp/dagger2")
+    model = load_model("/tmp/dagger12")
+    
     iil = DAgger(env=env, teacher=DaggerTeacher(env), learner=DaggerLearner(model), horizon=500, episodes=1)
 
     n_dagger_runs = 20
@@ -174,5 +177,5 @@ if __name__ == "__main__":
         print("\tTraining model:",run)
         #model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
 
-    keras.models.save_model(model,"/tmp/model2")
+    keras.models.save_model(model,"/tmp/model22")
     #model.save("dagger_trained.hdf5")
