@@ -5,7 +5,8 @@ from keras_tuner.tuners import Hyperband
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
 
-from model import *
+from data_reader import *
+from callbacks import *
 
 
 def create_x_y():
@@ -103,13 +104,16 @@ def hyperopti():
 
     model_best = tuner.hypermodel.build(params_best)
     history = model_best.fit(X_train, Y_train, epochs=500, validation_data=(X_valid, Y_valid),
-                             callbacks=[early_stopping, reduce_lr, change_lr, LoggerCallback("stat.csv")], verbose=1)
+                             callbacks=[early_stopping, reduce_lr, checkpoint, change_lr, LoggerCallback("stat.csv")],
+                             verbose=1,
+                             shuffle=True)
 
-    eval_result = model_best.evaluate(X_test, Y_test)
+    saved = keras.models.load_model('duckie.hdf5')
+
+    eval_result = saved.evaluate(X_test, Y_test)
     print("[test loss, test accuracy]:", eval_result)
 
     # model_best.save("/tmp/model")
-    keras.models.save_model(model_best, os.path.join(os.getcwd(), "duckieGym", "best_model4"))
 
     # print(model_best.predict(X_train[0]))
 
@@ -117,5 +121,5 @@ def hyperopti():
 
 
 result = hyperopti()
-model = keras.models.load_model(os.path.join(os.getcwd(), "duckieGym", "best_model4"))
+model = keras.models.load_model('duckie.hdf5')
 print(model.summary())

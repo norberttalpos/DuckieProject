@@ -5,8 +5,8 @@ from PIL import Image
 from gym_duckietown.envs import DuckietownEnv
 from keras.models import load_model
 
-from DaggerLearner import DaggerLearner
-from DaggerTeacher import DaggerTeacher
+from dagger_learner import DaggerLearner
+from dagger_teacher import DaggerTeacher
 
 
 class MyInteractiveImitationLearning:

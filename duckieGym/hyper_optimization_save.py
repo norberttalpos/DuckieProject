@@ -3,7 +3,8 @@ from keras_tuner.tuners import Hyperband
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
 
-from model import *
+
+from data_reader import *
 
 
 def create_x_y():
