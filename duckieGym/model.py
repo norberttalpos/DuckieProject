@@ -15,12 +15,24 @@ from LoggerCallback import LoggerCallback
 
 
 def scheduler(epoch):
-    if epoch < 30:
+    if epoch < 10:
         return 0.01
-    if epoch < 45:
+    if epoch < 15:
         return 0.005
-    else:
+    if epoch < 20:
+        return 0.002
+    if epoch < 25:
         return 0.001
+    if epoch < 30:
+        return 0.0005
+    if epoch < 35:
+        return 0.0002
+    if epoch < 40:
+        return 0.0001
+    if epoch < 50:
+        return 0.00005
+    else:
+        return 0.00002
 
 
 def scale(X, Y):
@@ -100,12 +112,12 @@ def create_model(input_shape):
 
     return model
 
+early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.8, patience=20, min_lr=10e-5)
+checkpoint = ModelCheckpoint(filepath='duckie.hdf5', verbose=1, save_best_only=True)
+change_lr = LearningRateScheduler(scheduler)
 
 def train_model(model, X_train, Y_train, X_valid, Y_valid):
-    early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.8, patience=20, min_lr=10e-5)
-    checkpoint = ModelCheckpoint(filepath='duckie.hdf5', verbose=1, save_best_only=True)
-    change_lr = LearningRateScheduler(scheduler)
 
     model.compile(loss='mse',
                   optimizer=Adam(),
