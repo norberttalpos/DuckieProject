@@ -1,3 +1,4 @@
+import os
 import time
 
 import keras
@@ -11,7 +12,7 @@ class LoggerCallback(keras.callbacks.Callback):
         self.id = int(time.time())
 
     def on_epoch_end(self, epoch, logs=None):
-        with open('stats/' + str(self.id) + str(self.file_name), "a") as f:
+        with open(os.path.join(os.getcwd(), 'stats', str(self.id) + str(self.file_name)), "a") as f:
             keys = list(logs.keys())
             if not self.columns_done:
                 for k in keys:
