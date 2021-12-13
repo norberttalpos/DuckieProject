@@ -69,7 +69,6 @@ def build_model(hp):
     model.add(Dense(12000,
                     activation="relu",
                     kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4),
-                    kernel_initializer='he_normal'
                     ))
     model.add(Dropout(hp.Float('dropout_2', min_value=0.1, max_value=0.9, step=0.2)))
     model.add(Dense(2, activation="linear"))
