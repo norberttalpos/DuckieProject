@@ -1,14 +1,3 @@
-import argparse
-import os
-
-from PIL import Image
-from gym_duckietown.envs import DuckietownEnv
-from keras.models import load_model
-
-from dagger_learner import DaggerLearner
-from dagger_teacher import DaggerTeacher
-
-
 class MyInteractiveImitationLearning:
     """
     A class used to contain main imitation learning algorithm

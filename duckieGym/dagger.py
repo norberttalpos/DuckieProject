@@ -13,6 +13,7 @@ from dagger_sandbox import MyInteractiveImitationLearning
 from detector import preprocess_image
 from data_reader import *
 from tensorflow.keras.callbacks import EarlyStopping
+from callbacks import *
 
 
 class DAgger(MyInteractiveImitationLearning):
@@ -172,7 +173,12 @@ if __name__ == "__main__":
         (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, y)
         early_stopping = EarlyStopping(patience=10, verbose=1, monitor='val_loss', mode='min')
         print("\tTraining model:",run)
-        #model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
+        model.fit(X, y, validation_split=0.2, epochs=500, shuffle=True, callbacks=[early_stopping])
+
+        history = model.fit(X, y, epochs=500, validation_split=0.2,
+                                 callbacks=[early_stopping, reduce_lr, checkpoint, change_lr],
+                                 verbose=1,
+                                 shuffle=True)
 
     keras.models.save_model(model,"/tmp/model2")
     #model.save("dagger_trained.hdf5")
