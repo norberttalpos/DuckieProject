@@ -6,12 +6,12 @@ from gym_duckietown.envs import DuckietownEnv
 from keras.models import load_model
 from tensorflow import keras
 
-from DaggerLearner import DaggerLearner
-from DaggerTeacher import DaggerTeacher
+from dagger_learner import DaggerLearner
+from dagger_teacher import DaggerTeacher
 from IIL import InteractiveImitationLearning
-from daggerSandBox import MyInteractiveImitationLearning
+from dagger_sandbox import MyInteractiveImitationLearning
 from detector import preprocess_image
-from model import read_data, scale
+from data_reader import *
 from tensorflow.keras.callbacks import EarlyStopping
 
 
