@@ -63,6 +63,12 @@ The learning itself is done in the `model.py`'s *train_model* function.
 The algorithm of DAgger is implemented in the `dagger.py`. It uses previously processed images loaded by `data_reader.py`.
 The optimization of hyperparameters is done in the `hyper_optimization.py`.
 
+
+Our best performing model can be downloaded from here:
+https://www.mediafire.com/file/h2i7zxxw2n8y5lj/Balra%25C3%2589sJobbraIsKanyarodik.zip/file
+It is strongly advised to multply the predicted velocity and steering by a positive number. We got the best results by multiplying the predicted velocity by 1.6 and multiplying the predicted steering by 10.0 and then use these values when stepping the environment.
+
+
 # Execution:
 
 Plain model:
