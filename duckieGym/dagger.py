@@ -131,7 +131,7 @@ if __name__ == "__main__":
     (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test) = create_x_y()
 
     print("balma")
-    model = load_model("/tmp/duckie3.hdf5")
+    model = load_model(args.model_path)
     #model = Sequential()
     #model.load_weights(args.model_path)
     eval_result = model.evaluate(X_test, Y_test)
