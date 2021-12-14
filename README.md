@@ -1,7 +1,10 @@
 # DuckieProject - Team Adja
 Kovács Boldizsár GVJY8E
+
 Schneider Marcell DBGYVI
+
 Talpos Norbert Q2H4XB
+
 Virág József Ádám U7KC0P
 
 ## Milestone 1:
