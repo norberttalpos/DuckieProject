@@ -62,3 +62,10 @@ A callback class *LoggerCallback* has been implemented to log the learning proce
 The learning itself is done in the *model.py*'s *train_model* function.
 The algorithm of DAgger is implemented in the *dagger.py*. It uses previously processed images loaded by *data_reader.py*.
 The optimization of hyperparameters is done in the *hyper_optimization.py*.
+
+# Execution:
+
+Plain model: python3 model.py\
+Hyperoptimization: python3 hyper_optimization.py\
+DAgger: python3 dagger.py (--map-name "name")  --model_path "path"\
+Simulator: python3 model_simulator.py (--map-name "name")  --model_path "path"\
