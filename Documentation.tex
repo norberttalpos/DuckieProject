@@ -223,7 +223,75 @@ This also helped the scanning of the data, as tens of thousands of images take u
 % megvalósítás
 
 \section*{Implementation}
-% TODO
+
+Traning and Testing
+
+Several challenges were met during training. The traning part of the pipline is quite long. First, in
+the above described architecture we wanted to get the learning rate right. It was done by some
+manual hpyerparameter optimization across multiple training runs with a small sample of 5000
+images. It was really helpful to get a grasp of approximately where to place the learning rates’
+value. We used different flat values and then tried to tune them using a learning rate Scheduler.
+With the scheduler down below we managed to get down to 0.3 validation MSE loss which is
+pictured in the diagram.
+
+\includegraphics[width=300px]{diagram.png}
+
+After realizing that the optimal
+learning is probably well described
+by the scheduler we proceeded to
+turn our focus on the other,
+architectural hyperparameters. We decided to run the optimization on
+	the sizes of the convolutional filters from 16 to 96 with the step of 16
+	the sizes of the convolutional kernels from the options of 3 / 5 / 7
+	On the second dropout rate in the upper layers from 0.1 to 0.9 with the step of 0.2
+	The learning rate from the options of 0.01/0.001/0.0001,0.0001 to double check our previous assumptions on the learning rate
+After running the optimizaion for 196 trials we got the following values
+
+\begin{center}
+\begin{tabular}{ | m{15em} | m{3em}| }
+  \hline
+  Name of the hyperparameter & Value  \\
+  \hline
+  \hline
+  conv 1 filter & 80  \\
+  \hline
+  conv 1 kernel & 7 \\
+  \hline
+    conv 2 filter  & 64 \\
+  \hline
+    conv 2 kernel & 7 \\
+  \hline
+    conv 3 filter  & 48 \\
+  \hline
+    conv 3 kernel & 7 \\
+  \hline
+    dropout & 0.3 \\
+      \hline
+    learning rate & 0.001 \\
+    \hline
+\end{tabular}
+\end{center}
+
+With these values in hand we trained the model on the prepared data. We managed to hit a
+validation loss of TODO by the end of training.
+For testing we generated some more images with the expert agent and evaluated the model on these
+images. We got the following results:
+	MSE for velocity on the training set: TODO
+	MSE for steering on the training set: TODO
+As for the live testing of our agent in the DuckieTown environment, we tested the model on
+numerous maps. The maps and the results on the map:
+
+\begin{center}
+\begin{tabular}{ | m{15em} | m{3em}| }
+  \hline
+    Zigzag dists & TODO \\
+  \hline
+    Small loop & TODO \\
+      \hline
+    TODO one of our custom map  & TODO \\
+    \hline
+\end{tabular}
+\end{center}
 
 \vspace*{2\baselineskip}
 
@@ -282,31 +350,6 @@ Zoltán Lőrincz, Imitation Learning in the DuckieTown Environment
 \\
 \url{http://tdk.bme.hu/VIK/DownloadPaper/Imitacios-tanulas-a-Duckietown-kornyezetben}
 
-
-\begin{center}
-\begin{tabular}{ | m{15em} | m{3em}| }
-  \hline
-  Name of the hyperparameter & Value  \\
-  \hline
-  \hline
-  conv 1 filter & 80  \\
-  \hline
-  conv 1 kernel & 7 \\
-  \hline
-    conv 2 filter  & 64 \\
-  \hline
-    conv 2 kernel & 7 \\
-  \hline
-    conv 3 filter  & 48 \\
-  \hline
-    conv 3 kernel & 7 \\
-  \hline
-    dropout & 0.3 \\
-      \hline
-    learning rate & 0.001 \\
-    \hline
-\end{tabular}
-\end{center}
 
 \pagebreak
 
