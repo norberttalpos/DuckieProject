@@ -31,6 +31,7 @@ parser.add_argument('--map-name', default='zigzag_dists')
 parser.add_argument('--distortion', default=False, action='store_true')
 parser.add_argument('--draw-curve', action='store_true', help='draw the lane following curve')
 parser.add_argument('--domain-rand', action='store_true', help='enable domain randomization')
+parser.add_argument("--model_path", default=None)
 args = parser.parse_args()
 
 if args.env_name is None:
@@ -45,7 +46,7 @@ else:
 
 env.reset()
 env.render()
-model = load_model("/tmp/duckie3.hdf5")
+model = load_model(args.model_path)
 learner=DaggerLearner(model)
 first = False
 
