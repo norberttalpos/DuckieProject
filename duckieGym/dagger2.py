@@ -136,7 +136,6 @@ for itr in range(dagger_itr):
     for ob in ob_list:
         images_all = np.concatenate([images_all, img_reshape(ob)], axis=0)
 
-
     model.fit(images_all, actions_all,
               batch_size=batch_size,
               validation_split=0.15,
@@ -149,4 +148,3 @@ for itr in range(dagger_itr):
 print("alma")
 keras.models.save_model(model, "/tmp/dagger12")
 print(model.summary())
-
