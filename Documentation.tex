@@ -58,15 +58,16 @@
 \usepackage{multirow}       % allows multiple rows put into one
 \usepackage{booktabs}       % hline extensions like \toprule \bottomrule \midrule 
 \usepackage{makecell}       % multiline cells
+\usepackage{array}
 
 % references
 \usepackage{cite}
 \usepackage[nameinlink,capitalize]{cleveref}  % easy referencing
 
 % Fill in the names:
-\newcommand{\StudentName}{Max Musterman} 
-\newcommand{\UniSupervisorName}{Prof. Dr. Dr. Goodman}  
-\newcommand{\CernSupervisorName}{Dr. Okayman} 
+\newcommand{\StudentName}{Max Musterman}
+\newcommand{\UniSupervisorName}{Prof. Dr. Dr. Goodman}
+\newcommand{\CernSupervisorName}{Dr. Okayman}
 
 \begin{document}
 
@@ -172,7 +173,7 @@ In this homework we implemented the Imitation Learning+DAgger algorithm in the D
 % bevezető
 
 \section*{Introduction}
-In our project, we worked in a Duckietown environment to construct an AI model in the field of autonomous driving and imitation learning. At first, we preprocessed images by cropping and resizing them and then  we constructed a model consisting of three convolutional layers. The parameters of the layers have been hyperparameter-optimized and we also used the Dagger-algorithm (an algorithm highly recommended for imitational training) to train our model through a Dagger expert (teacher). Our model will be able to determine the ideal steering (in radian) and speed (e.g. a two-element vector as the output) of the driven car according to the current observed image.
+In our project, we worked in a Duckietown environment to construct an AI model in the field of autonomous driving and imitation learning. At first, we preprocessed images by cropping and resizing them and then  we constructed a model consisting of three convolutional layers. The parameters of the layers have benn hyperparameter-optimized and we also used the Dagger-algorithm (an algorithm highly recommended for imitational training) to train our model through a Dagger expert (teacher). Our model will be able to determine the ideal steering (in radian) and speed (e.g. a two-element vector as the output) of the driven car according to the current observed image.
 
 \vspace*{2\baselineskip}
 
@@ -188,7 +189,7 @@ In the field of our project, the teaching means showing our model some training 
 
 The utilised methodology of our project contains the DAgger (data aggregation) algorithm. It trains the model on all the previous data collected by the agent. The driving data is created by the DAgger-expert. Of course, there are some other algorithms like Behavioral Cloning, GAIL and DAgger-extensions such as Ensemble DAgger and Reward-Guided DAgger.
 
-During our examination of self-driving cars in DuckieTown environment, enormous advantage had been taken of a Scientific Students' Associations (TDK) research paper written by Zoltán Lőrincz, so that article is to be considered to be of paramount importance of the project. 
+During our examination of self-driving cars in DuckieTown environment, enormous advantage had been taken of a Scientific Students' Associations (TDK) research paper written by Zoltán Lőrincz, so that article is to be considered to be of paramount importance of the project.
 
 % rendszerterv
 
@@ -227,10 +228,6 @@ This also helped the scanning of the data, as tens of thousands of images take u
 \vspace*{2\baselineskip}
 
 % jövőbeli tervek
-\section*{Future plans}
-
-We encountered a multitude of minor major problems throughout the whole exercise. Initially we wanted to have one of our own from the DuckieTown environment. This took us a while, because we started from the point where we needed a VM and Ubuntu. We installed a bunch of necessary libraries, and then hoped that everything worked out and we could see some kind of simulation.
-We eventually did, and we started to get to know the environment. We arrived at our solution in a rather bumpy way, but in the end it was the best we could do. We tried to use the lesson materials as best we could, and also looked on the internet for solutions to some problems. Basically, we were very interested in solving each problem. We tried to solve them as best we could, while learning from them. We are relatively satisfied with the results, although we have had a million better and worse sub-results along the way. A model that could only drive well on occasion, but only left and forward. So after each failure, we tried to fine-tune our solution, and checked the code to see if we had mistyped something, or not written it at all.We tried to make the images as varied as possible, and we tried to modify the architecture. We did this with more and less success.  It was fun working on this project, we put a lot of hours and effort in it. We have learned that it is possible to get things wrong even on the smallest things. We got on very well as a team, everyone did their part and did it fairly. With our experience, we are guaranteed to simplify future problems in many areas of life. It is a very useful skill to have. Whether it's a self-driving car, or just a simple event in a simulation environment, wherever something rewarding comes up, it's easy to help.
 
 \section*{Future plans}
 % TODO
@@ -248,7 +245,7 @@ Duckietown official website:
 
 Duckietown baseline DAgger algorithm.
 \\
-\url{https://docs.duckietown.org/DT19/AIDO/out/embodied_il_sim_dagger.html} 
+\url{https://docs.duckietown.org/DT19/AIDO/out/embodied_il_sim_dagger.html}
 \vspace*{1\baselineskip}
 
 Duckietown-world.
@@ -266,17 +263,17 @@ Wu Jianxin. "Introduction to convolutional neural networks.", National Key Lab f
 \vspace*{1\baselineskip}
 \vspace*{1\baselineskip}
 
-Keras official website: 
+Keras official website:
 \\
 \url{https://keras.io/}
 \vspace*{1\baselineskip}
 
-Keras Tuner tutorial: 
+Keras Tuner tutorial:
 \\
 \url{https://www.tensorflow.org/tutorials/keras/keras_tuner}
 \vspace*{1\baselineskip}
 
-Deep Learning Wizard: 
+Deep Learning Wizard:
 \\
 \url{https://www.deeplearningwizard.com/}
 \vspace*{1\baselineskip}
@@ -284,6 +281,32 @@ Deep Learning Wizard:
 Zoltán Lőrincz, Imitation Learning in the DuckieTown Environment
 \\
 \url{http://tdk.bme.hu/VIK/DownloadPaper/Imitacios-tanulas-a-Duckietown-kornyezetben}
+
+
+\begin{center}
+\begin{tabular}{ | m{15em} | m{3em}| }
+  \hline
+  Name of the hyperparameter & Value  \\
+  \hline
+  \hline
+  conv 1 filter & 80  \\
+  \hline
+  conv 1 kernel & 7 \\
+  \hline
+    conv 2 filter  & 64 \\
+  \hline
+    conv 2 kernel & 7 \\
+  \hline
+    conv 3 filter  & 48 \\
+  \hline
+    conv 3 kernel & 7 \\
+  \hline
+    dropout & 0.3 \\
+      \hline
+    learning rate & 0.001 \\
+    \hline
+\end{tabular}
+\end{center}
 
 \pagebreak
 
