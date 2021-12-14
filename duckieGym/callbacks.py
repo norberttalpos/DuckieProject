@@ -1,8 +1,10 @@
 from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, LearningRateScheduler
 
+dagger = False
 
 def scheduler(epoch):
-    return 0.00002
+    if dagger:
+        return 0.00002
 
     if epoch < 10:
         return 0.01
@@ -20,27 +22,6 @@ def scheduler(epoch):
         return 0.0001
     if epoch < 50:
         return 0.00005
-    else:
-        return 0.00002
-
-    if epoch < 3:
-        return 1.0
-    if epoch < 10:
-        return 0.1
-    if epoch < 15:
-        return 0.05
-    if epoch < 20:
-        return 0.02
-    if epoch < 25:
-        return 0.01
-    if epoch < 30:
-        return 0.005
-    if epoch < 35:
-        return 0.001
-    if epoch < 40:
-        return 0.0005
-    if epoch < 50:
-        return 0.0001
     else:
         return 0.00002
 

@@ -6,6 +6,7 @@ from tensorflow.python.keras.layers import Dropout
 
 from logger_callback import LoggerCallback
 from callbacks import *
+from data_reader import *
 
 
 def create_model(input_shape):
@@ -48,10 +49,8 @@ def train_model(model, X_train, Y_train, X_valid, Y_valid):
               shuffle=True)
 
 
-"""
 X, Y = read_data()
 
-#TODO swap scale and split_data order
 (X_scaled, Y_scaled), velocity_steering_scaler = scale(X, Y)
 
 (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test) = split_data(X_scaled, Y_scaled)
@@ -64,6 +63,5 @@ print("eval score: ", model.evaluate(X_test, Y_test, batch_size=32))
 
 y_test_pred = model.predict(X_test)
 
-for idx, pred in enumerate(y_test_pred): #TODO maybe pyplot history after training
+for idx, pred in enumerate(y_test_pred):  # TODO maybe pyplot history after training
     print(pred, Y_test[idx])
-"""
