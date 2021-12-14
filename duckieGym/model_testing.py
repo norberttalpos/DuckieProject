@@ -29,6 +29,11 @@ from gym_duckietown.envs import DuckietownEnv
 
 REWARD_INVALID_POSE = -1000
 
+"""
+Class used to test the model in the environment. Once __init__ is called it starts a simulation 
+and saves the observed images. Also is a wrapper class for the model used for making predictions
+"""
+
 
 class ModelTestEnvironment:
     def __init__(self, env, max_episodes, max_steps, model, log_file=None, downscale=False):

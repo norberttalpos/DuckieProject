@@ -24,7 +24,9 @@ input_xtest = X_test[0].shape
 input_shape3 = X_valid[0].shape
 print(input_shape2, input_xtest, input_shape3)
 
-
+"""
+This script is used to hpyeroptimization using hpyerband
+"""
 def build_model(hp):
     model = Sequential()
 

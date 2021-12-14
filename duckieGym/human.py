@@ -22,6 +22,9 @@ from pyglet.window import Window
 
 from gym_duckietown.envs import DuckietownEnv
 
+
+
+
 class HumanDriver:
     left = False
     right = False

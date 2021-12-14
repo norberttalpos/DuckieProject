@@ -5,8 +5,10 @@ import numpy as np
 from PIL import Image
 
 
-
-def change_colors(cv2img): #TODO elvárt, de lehet hogy rosszabb tanításra
+"""
+Change the colors of the image. Also used for cropping.
+"""
+def change_colors(cv2img):
     yellow = cv.imread(os.path.join(os.getcwd(), "ColorBase", "yellow.png"))
     yellow = cv.cvtColor(yellow, cv.COLOR_RGB2BGR)
     gray = cv.imread(os.path.join(os.getcwd(), "ColorBase", "gray.png"))
