@@ -11,25 +11,23 @@ import sys
 import cv2
 import time
 import gym
-import numpy as np
 import pyglet
 
 import argparse
 import os
 
 import numpy as np
-from gym_duckietown.envs import DuckietownEnv
 from tensorflow import keras
 from keras.models import load_model
 
 
 from dagger_learner import DaggerLearner
 from dagger_teacher import DaggerTeacher
-from IIL import InteractiveImitationLearning
 from dagger_sandbox import MyInteractiveImitationLearning
 from detector import preprocess_image
-from model import read_data, scale
 from tensorflow.keras.callbacks import EarlyStopping
+
+from data_reader import *
 
 
 from log_util import Logger
@@ -42,10 +40,6 @@ from gym_duckietown.envs import DuckietownEnv
 
 from keras.models import Sequential
 from keras import layers
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D
-from tensorflow.keras.optimizers import Adam
-
 
 img_dim = [48,85,3]
 
@@ -156,7 +150,7 @@ class HumanDriver:
             self.left = press
     
     #@window.event
-    def on_key_press(symbol, modifiers):
+    def on_key_press(self, symbol, modifiers):
         """
         This handler processes keyboard commands that
         control the simulation
@@ -186,7 +180,7 @@ class HumanDriver:
             self.env.close()
             sys.exit(0)
     
-    def on_key_release(symbol, modifiers):
+    def on_key_release(self, symbol, modifiers):
         if symbol == key.A:
             self.left = False
         if symbol == key.D:
