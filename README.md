@@ -65,7 +65,7 @@ The optimization of hyperparameters is done in the *hyper_optimization.py*.
 
 # Execution:
 
-Plain model: python3 model.py
-Hyperoptimization: python3 hyper_optimization.py
-DAgger: python3 dagger.py (--map-name "name")  --model_path "path"
-Simulator: python3 model_simulator.py (--map-name "name")  --model_path "path"
+Plain model: python3 model.py\
+Hyperoptimization: python3 hyper_optimization.py\
+DAgger: python3 dagger.py (--map-name "name")  --model_path "path"\
+Simulator: python3 model_simulator.py (--map-name "name")  --model_path "path"\
