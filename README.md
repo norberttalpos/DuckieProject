@@ -7,7 +7,7 @@ Talpos Norbert Q2H4XB
 
 Virág József Ádám U7KC0P
 
-DEMO: https://youtu.be/8hvmge7oYk4
+DEMO: https://youtu.be/qkuWkR5Tzaw
 
 ## Milestone 1:
 
@@ -68,7 +68,7 @@ The optimization of hyperparameters is done in the `hyper_optimization.py`.
 
 Our best performing model can be downloaded from here:
 https://www.mediafire.com/file/h2i7zxxw2n8y5lj/Balra%25C3%2589sJobbraIsKanyarodik.zip/file
-It is strongly advised to multply the predicted velocity and steering by a positive number. We got the best results by multiplying the predicted velocity by 1.6 and multiplying the predicted steering by 10.0 and then use these values when stepping the environment.This is the final form of the model with which we managed to make the DEMO video linked at the start of README.md (https://youtu.be/8hvmge7oYk4)
+It is strongly advised to multply the predicted velocity and steering by a positive number. We got the best results by multiplying the predicted velocity by 1.6 and multiplying the predicted steering by 10.0 and then use these values when stepping the environment.This is the final form of the model with which we managed to make the DEMO video linked at the start of README.md.
 # Execution:
 
 Plain model:
